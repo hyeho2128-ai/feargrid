@@ -1,7 +1,7 @@
 "use client";
 
 import { animate, motion, useMotionValue, useTransform } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type CountingYearProps = {
   cycle?: number;
@@ -9,61 +9,77 @@ type CountingYearProps = {
   value: string;
 };
 
-export function CountingYear({ cycle = 0, energetic = false, value }: CountingYearProps) {
-  const numericYear = Number(value);
-  const count = useMotionValue(Number.isFinite(numericYear) ? numericYear : 0);
-  const display = useTransform(count, (latest) => {
-    if (!Number.isFinite(numericYear)) {
-      return value;
-    }
+type RollingDigitProps = {
+  cycle: number;
+  energetic: boolean;
+  index: number;
+  target: number;
+};
 
-    return String(Math.round(latest));
+function RollingDigit({ cycle, energetic, index, target }: RollingDigitProps) {
+  const reel = useMotionValue(target);
+  const display = useTransform(reel, (latest) => {
+    const digit = Math.round(latest) % 10;
+    return String(digit < 0 ? digit + 10 : digit);
   });
-  const [animationKey, setAnimationKey] = useState(cycle);
 
   useEffect(() => {
-    setAnimationKey(cycle);
-  }, [cycle]);
-
-  useEffect(() => {
-    if (!Number.isFinite(numericYear)) {
+    if (cycle === 0) {
+      reel.set(target);
       return;
     }
 
-    if (animationKey === 0) {
-      count.set(numericYear);
-      return;
-    }
-
-    const startOffset = energetic ? 34 : 16;
-    const startYear = Math.max(1900, numericYear - startOffset);
-    count.set(startYear);
-    const controls = animate(count, numericYear, {
-      duration: energetic ? 1.65 : 1.2,
+    const rotations = energetic ? 18 + index * 3 : 11 + index * 2;
+    reel.set(target - rotations);
+    const controls = animate(reel, target, {
+      delay: index * (energetic ? 0.13 : 0.09),
+      duration: energetic ? 1.05 + index * 0.16 : 0.9 + index * 0.1,
       ease: [0.16, 1, 0.3, 1]
     });
 
     return controls.stop;
-  }, [animationKey, count, energetic, numericYear]);
+  }, [cycle, energetic, index, reel, target]);
 
   return (
     <motion.span
       animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}
-      className="relative inline-block tabular-nums"
-      initial={{ filter: "blur(12px)", opacity: 0, y: "0.24em" }}
-      key={`${value}-${animationKey}`}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="inline-block w-[0.64em] overflow-hidden text-center tabular-nums"
+      initial={{ filter: "blur(10px)", opacity: 0, y: "0.18em" }}
+      key={`${cycle}-${index}-${target}`}
+      transition={{
+        delay: index * (energetic ? 0.08 : 0.05),
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1]
+      }}
     >
-      <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-[0.82em] text-white/10">
-        {Number.isFinite(numericYear) ? numericYear + 1 : value}
-      </span>
-      <motion.span aria-hidden="true" className="relative block">
-        {display}
-      </motion.span>
-      <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-[0.82em] text-white/10">
-        {Number.isFinite(numericYear) ? numericYear - 1 : value}
+      <motion.span className="block leading-none">{display}</motion.span>
+    </motion.span>
+  );
+}
+
+export function CountingYear({ cycle = 0, energetic = false, value }: CountingYearProps) {
+  const characters = value.split("");
+
+  return (
+    <>
+      <span aria-hidden="true" className="inline-flex items-baseline leading-none tabular-nums">
+        {characters.map((character, index) =>
+          /\d/.test(character) ? (
+            <RollingDigit
+              cycle={cycle}
+              energetic={energetic}
+              index={index}
+              key={`${index}-${character}`}
+              target={Number(character)}
+            />
+          ) : (
+            <span className="inline-block" key={`${index}-${character}`}>
+              {character}
+            </span>
+          )
+        )}
       </span>
       <span className="sr-only">{value}</span>
-    </motion.span>
+    </>
   );
 }
