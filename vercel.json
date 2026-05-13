@@ -1,6 +1,38 @@
 {
-  "framework": "nextjs",
-  "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "outputDirectory": "out"
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "404.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "index.txt",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "404/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "_next/static/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/_next/static/(.*)",
+      "dest": "/_next/static/$1"
+    },
+    {
+      "src": "/404/(.*)",
+      "dest": "/404/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
