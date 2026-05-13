@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+
+*.log
+feargrid-*.png
+
+.env*.local
+.vercel/
