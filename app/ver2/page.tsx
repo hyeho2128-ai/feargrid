@@ -1,5 +1,5 @@
-import { PhysicsSphereLab } from "@/components/PhysicsSphereLab";
+import { GravityCollisionSandbox } from "@/components/GravityCollisionSandbox";
 
 export default function Ver2Page() {
-  return <PhysicsSphereLab />;
+  return <GravityCollisionSandbox eyebrow="FearGrid ver2" title="Gravity chamber" />;
 }

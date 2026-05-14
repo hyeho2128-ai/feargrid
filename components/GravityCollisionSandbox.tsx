@@ -18,7 +18,15 @@ function makeWall(size: [number, number, number], position: [number, number, num
   return wall;
 }
 
-export function GravityCollisionSandbox() {
+type GravityCollisionSandboxProps = {
+  eyebrow?: string;
+  title?: string;
+};
+
+export function GravityCollisionSandbox({
+  eyebrow = "ver2 sandbox",
+  title = "Gravity collision test",
+}: GravityCollisionSandboxProps) {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const spawnRef = useRef<(amount?: number) => void>(() => undefined);
   const resetRef = useRef<() => void>(() => undefined);
@@ -267,8 +275,8 @@ export function GravityCollisionSandbox() {
       <section className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-7 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.38em] text-cyan-200/75">ver2 sandbox</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-normal sm:text-6xl">Gravity collision test</h1>
+            <p className="text-xs font-bold uppercase tracking-[0.38em] text-cyan-200/75">{eyebrow}</p>
+            <h1 className="mt-3 text-4xl font-semibold tracking-normal sm:text-6xl">{title}</h1>
           </div>
           <div className="flex gap-2">
             <button
